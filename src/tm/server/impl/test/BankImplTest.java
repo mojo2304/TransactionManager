@@ -11,8 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import tm.client.Client;
-import tm.objectmanger.OM;
-import tm.objectmanger.ObjectManager;
+import tm.objectmanager.OM;
+import tm.objectmanager.ObjectManager;
 import tm.server.Bank;
 import tm.server.Server;
 

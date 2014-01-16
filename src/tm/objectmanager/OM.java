@@ -1,4 +1,4 @@
-package tm.objectmanger;
+package tm.objectmanager;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;

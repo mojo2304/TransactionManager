@@ -1,4 +1,4 @@
-package tm.objectmanger;
+package tm.objectmanager;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-import tm.objectmanger.ObjectManager;
+import tm.objectmanager.ObjectManager;
 import tm.server.model.Operation;
 import tm.server.model.Result;
 import tm.server.util.ExecuteException;

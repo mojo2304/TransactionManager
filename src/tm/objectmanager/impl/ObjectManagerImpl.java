@@ -15,7 +15,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import tm.objectmanger.ObjectManager;
+import tm.objectmanager.ObjectManager;
 import tm.server.model.Operation;
 import tm.server.model.Result;
 import tm.server.model.operation.*;

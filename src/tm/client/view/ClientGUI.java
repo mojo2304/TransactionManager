@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.rmi.RemoteException;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -25,6 +26,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import tm.client.Client;
+import tm.server.util.ExecuteException;
 
 public class ClientGUI extends JFrame {
 
@@ -112,11 +114,14 @@ public class ClientGUI extends JFrame {
 					if (_controller.connectToBank(textField.getText(), port, Client.standardBankName)) {
 						textArea.append("Connection established...\n");
 						textArea.append("Rufe Kontendaten ab...\n");
-						if (false) {
-							textArea.append("Fehler beim Abrufen der Kontendaten...\n");
-							float kontostand = _controller.getBankAccess(); // Rufe Kontostand ab
-							txtKa.setText(String.valueOf(kontostand));
-						} else {
+						
+						String bankCode = textField_11.getText();
+						int accountId = Integer.valueOf(textField_11.getText());
+						try {
+							float kontostand = _controller.getBankAccess().getAccountBalance(accountId, bankCode);
+							txtKa.setText(String.valueOf(kontostand) + " EUR");
+						} catch (RemoteException | ExecuteException e) {
+							txtKa.setText("k.A.");
 							textArea.append("Beim Abrufen der Kontendaten trat ein Fehler auf...\n");
 						}
 					} else {

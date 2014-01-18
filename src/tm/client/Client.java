@@ -11,4 +11,6 @@ public interface Client {
 	final String standardBankName = Bank.FIRSTBANKNAME;
 	
 	public boolean connectToBank(String bankIPAdress, int bankPort, String bankName);
+	
+	public Bank getBankAccess();
 }

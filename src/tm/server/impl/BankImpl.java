@@ -238,4 +238,24 @@ public class BankImpl implements Bank {
 			return false;
 		}
 	}
+	
+	public float getAccountBalance(int accountId, String bankCode) throws RemoteException, ExecuteException {
+		Transaction t = _tm.createNewTransaction();
+		t.begin();
+		
+		try {
+			Read r = new Read(t, accountId);
+			Result[] srcResult = _tm.execute(r, bankCode);
+			
+			t.commit();
+			
+			return srcResult[0].getFloat();
+		} catch (ExecuteException e) {
+			t.abort();
+			throw new ExecuteException(e.getMessage());
+		} catch (RemoteException e) {
+			t.abort();
+			throw new RemoteException(e.getMessage());
+		}
+	}
 }

@@ -30,6 +30,7 @@ public class Scheduler {
 		ObjectManager om = getObjectManagerbyBankCode(bankCode);
 		
 		if (om != null) {
+			op.getAssociatedTransaction().addInvolvedOM(om);
 			return om.executeOperation(op);
 		} else {
 			System.out.println("Unknown bank code!");

@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import tm.objectmanager.ObjectManager;
 import tm.server.model.Operation;
 import tm.server.model.Result;
+import tm.server.model.Transaction;
 import tm.server.model.operation.*;
 import tm.server.util.ConnectException;
 import tm.server.util.ExecuteException;
@@ -170,7 +172,7 @@ public class ObjectManagerImpl implements ObjectManager {
 				
 				s.executeUpdate();
 	
-				// für automatisch generierten Key
+				// fï¿½r automatisch generierten Key
 				set = s.getGeneratedKeys();
 				
 				if (set.next()) {
@@ -189,7 +191,7 @@ public class ObjectManagerImpl implements ObjectManager {
 
 				s.executeUpdate();
 
-				// für automatisch generierten Key
+				// fï¿½r automatisch generierten Key
 				set = s.getGeneratedKeys();
 				
 				if (set.next()) {
@@ -233,6 +235,25 @@ public class ObjectManagerImpl implements ObjectManager {
 		
 		return null;
 	}
+	
+	
+	public boolean checkCommit(Transaction t) throws RemoteException {
+		// TODO synchronization protocol -> i.e. at this point we can be sure that we can commit
+		// 2PCP: normally we would have to log our decision here, but its always true anyways ...
+		return true; 
+	}
+	
+	public void commit(Transaction t) throws RemoteException {
+		// TODO log that we should commit
+		// TODO now we can clear our log for this transaction
+		return; // nothing to be done, as the operations already got executed correctly
+	}
+	public void rollback(Transaction t) throws RemoteException {
+		// TODO here we need the log for the local OM in order to undo operations
+		// TODO log the fact that we have to do a roll back as well! (in case we fail-stop-return while rolling back)
+		return;
+	}
+	
 
 	public void printTableEntries(String tableName) {
 		System.out.println("Table " + tableName + " from " + _dbName);

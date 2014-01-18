@@ -2,8 +2,6 @@ package tm.client.view;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.EventQueue;
-
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
@@ -149,7 +147,7 @@ public class ClientGUI extends JFrame {
 		panel_1.add(textField_11);
 		textField_11.setColumns(10);
 		
-		JButton btnAusfhren = new JButton("Ausführen...");
+		JButton btnAusfhren = new JButton("Ausfï¿½hren...");
 		btnAusfhren.setBounds(297, 115, 150, 30);
 		JPanel panel = new JPanel();
 		tabbedPane.addTab("Buchungsformular", null, panel, null);

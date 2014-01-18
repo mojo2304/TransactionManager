@@ -42,6 +42,7 @@ public class FocusTraversalOnArray extends FocusTraversalPolicy {
 		int next = (index + delta + size) % size;
 		return next;
 	}
+	
 	private Component cycle(Component currentComponent, int delta) {
 		int index = -1;
 		loop : for (int i = 0; i < m_Components.length; i++) {

@@ -1,19 +1,18 @@
 package tm.server.impl.test;
 
+import static org.junit.Assert.fail;
+
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-
-import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import tm.client.Client;
+import tm.client.impl.ClientImpl;
 import tm.objectmanager.OM;
 import tm.objectmanager.ObjectManager;
-import tm.server.Bank;
 import tm.server.Server;
 
 public class BankImplTest {
@@ -21,7 +20,7 @@ public class BankImplTest {
 	Registry _registry;
 	
 	Server _s;
-	Client _c;
+	ClientImpl _c;
 
 	OM _om1;
 	OM _om2;
@@ -59,7 +58,7 @@ public class BankImplTest {
 		}
 		
 		try {
-			_c = new Client("127.0.0.1", Bank.FIRSTBANKNAME);
+			_c = new ClientImpl();
 			_c.start();
 		} catch(Exception e) {
 			System.out.println("Could not set up RMI on client side with reason:");
@@ -83,40 +82,4 @@ public class BankImplTest {
 		}
 	}
 	
-	/*
-	@Test
-	public void testOtherOperations() {
-		try {
-			Registry registry = LocateRegistry.getRegistry();
-			
-			Bank bank = (Bank) registry.lookup("Bank");
-			
-			bank.deposit(0, (float)1024, "vs12");
-			
-			bank.createNewAccount(0, "vs12");
-			bank.createNewAccount(0, "vs12");
-			
-			bank.remittance(1, "vs12", 0, "vs12", (float)512);
-			bank.remittance(2, "vs12", 1, "vs12", (float)256);
-			bank.remittance(3, "vs12", 2, "vs12", (float)128);
-			
-			bank.remittance(0, "vs13", 3, "vs12", (float)64);
-			
-			bank.remittance(1, "vs13", 0, "vs13", (float)32);
-			bank.remittance(2, "vs13", 1, "vs13", (float)16);
-			bank.remittance(3, "vs13", 2, "vs13", (float)8);
-			
-			bank.deleteCustomer(0, "vs12");
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("Test otherOperations failed. " + e.getMessage());
-		}
-	}
-
-	@Test
-	public void otherOperations() {
-		bank.cashout(aid, amount, strs[3]);
-		bank.transfer(destAID, srcAID, strs[3], amount);
-	}
-	*/
 }

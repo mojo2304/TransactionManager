@@ -1,7 +1,12 @@
 package tm.client.view;
 
+
+
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
@@ -19,11 +24,14 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import tm.client.Client;
+
 public class ClientGUI extends JFrame {
 
 	private static final long serialVersionUID = 2554779308649225621L;
 	
 	private JPanel contentPane;
+	private JTextArea textArea;
 	private JTextField textField;
 	private JTextField txtstandard;
 	private JTextField textField_2;
@@ -37,10 +45,14 @@ public class ClientGUI extends JFrame {
 	private JTextField textField_10;
 	private JTextField textField_11;
 
+	Client _controller;
+	
 	/**
 	 * Create the frame.
 	 */
-	public ClientGUI() {
+	public ClientGUI(Client c) {
+		_controller = c;
+		
 		setTitle("Transaction Manger (Client)");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 500, 400);
@@ -48,7 +60,7 @@ public class ClientGUI extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		
-		JTextArea textArea = new JTextArea();
+		textArea = new JTextArea();
 		textArea.setEditable(false);
 		textArea.setLineWrap(true);
 		
@@ -92,6 +104,29 @@ public class ClientGUI extends JFrame {
 		panel_1.setLayout(null);
 		
 		JButton btnNewButton = new JButton("Verbinde mit Bank und Konto");
+		btnNewButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				int port = getPortNumberFromPortTextField();
+				if ((port > 0) && (port < 65536)) {
+					if (_controller.connectToBank(textField.getText(), port, Client.standardBankName)) {
+						textArea.append("Connection established...\n");
+						textArea.append("Rufe Kontendaten ab...\n");
+						if (false) {
+							textArea.append("Fehler beim Abrufen der Kontendaten...\n");
+							float kontostand = _controller.getBankAccess(); // Rufe Kontostand ab
+							txtKa.setText(String.valueOf(kontostand));
+						} else {
+							textArea.append("Beim Abrufen der Kontendaten trat ein Fehler auf...\n");
+						}
+					} else {
+						textArea.append("Try to establish connection failed...\n");
+					}
+				} else {
+					textArea.append("Something went wrong with the port number...\n");
+				}
+			}
+		});
 		btnNewButton.setBounds(133, 120, 203, 30);
 		panel_1.add(btnNewButton);
 		
@@ -147,7 +182,12 @@ public class ClientGUI extends JFrame {
 		panel_1.add(textField_11);
 		textField_11.setColumns(10);
 		
-		JButton btnAusfhren = new JButton("Ausfï¿½hren...");
+		JButton btnAusfhren = new JButton("Ausführen...");
+		btnAusfhren.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+			}
+		});
 		btnAusfhren.setBounds(297, 115, 150, 30);
 		JPanel panel = new JPanel();
 		tabbedPane.addTab("Buchungsformular", null, panel, null);
@@ -242,5 +282,22 @@ public class ClientGUI extends JFrame {
 		panel.add(textField_10);
 		textField_10.setColumns(10);
 		contentPane.setLayout(gl_contentPane);
+	}
+	
+	private int getPortNumberFromPortTextField() {
+		String check = txtstandard.getText();
+		int retValue;
+		
+		try {
+			if (check.equals("(Standard)")) {
+				retValue = Client.standardBankPort;
+			} else {
+				retValue = Integer.parseInt(check);
+			}
+		} catch(NumberFormatException e) {
+			retValue = -1;
+		}
+		
+		return retValue;
 	}
 }

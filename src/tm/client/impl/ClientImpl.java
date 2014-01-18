@@ -4,18 +4,14 @@ import java.awt.EventQueue;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import tm.client.Client;
 import tm.client.view.ClientGUI;
 import tm.server.Bank;
 
 public class ClientImpl extends Thread  {
 	
 	boolean _work;
-	
 	private Bank bank = null;
-	
-	final String _bankIPAdress = "127.0.0.1";
-	final int _bankPort = Registry.REGISTRY_PORT;
-	final String _bankName = Bank.FIRSTBANKNAME;
 
 	public ClientImpl() {
 		_work = true;
@@ -53,7 +49,7 @@ public class ClientImpl extends Thread  {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ClientGUI frame = new ClientGUI();
+					ClientGUI frame = new ClientGUI(getThisInstance());
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -68,6 +64,10 @@ public class ClientImpl extends Thread  {
 	
 	public Bank getBankAccess() {
 		return bank;
+	}
+	
+	public Client getThisInstance() {
+		return (Client) this;
 	}
 	
 	/**

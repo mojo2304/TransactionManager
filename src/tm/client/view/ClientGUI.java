@@ -1,7 +1,5 @@
 package tm.client.view;
 
-
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
@@ -27,8 +25,6 @@ import javax.swing.border.LineBorder;
 
 import tm.client.Client;
 import tm.model.ResultGUI;
-
-import javax.swing.JScrollBar;
 
 public class ClientGUI extends JFrame {
 

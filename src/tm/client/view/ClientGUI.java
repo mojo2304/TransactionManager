@@ -6,7 +6,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.rmi.RemoteException;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -17,6 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -26,7 +26,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import tm.client.Client;
-import tm.server.util.ExecuteException;
+import tm.model.ResultGUI;
+
+import javax.swing.JScrollBar;
 
 public class ClientGUI extends JFrame {
 
@@ -36,7 +38,7 @@ public class ClientGUI extends JFrame {
 	private JTextArea textArea;
 	private JTextField textField;
 	private JTextField txtstandard;
-	private JTextField textField_2;
+	private JTextField txtHeinJohannes;
 	private JTextField textField_3;
 	private JTextField textField_4;
 	private JTextField textField_5;
@@ -45,14 +47,20 @@ public class ClientGUI extends JFrame {
 	private JTextField textField_8;
 	private JTextField textField_9;
 	private JTextField textField_10;
-	private JTextField textField_11;
+	private JTextField txtVs;
+	
+	private JButton btnAusfhren;
+	private JButton btnNewButton;
 
 	Client _controller;
+
+	private boolean _connected;
 	
 	/**
 	 * Create the frame.
 	 */
 	public ClientGUI(Client c) {
+		_connected = false;
 		_controller = c;
 		
 		setTitle("Transaction Manger (Client)");
@@ -63,8 +71,13 @@ public class ClientGUI extends JFrame {
 		setContentPane(contentPane);
 		
 		textArea = new JTextArea();
-		textArea.setEditable(false);
-		textArea.setLineWrap(true);
+        textArea.setColumns(20);
+        textArea.setLineWrap(true);
+        textArea.setRows(5);
+        textArea.setWrapStyleWord(true);
+        textArea.setEditable(false);
+        
+        JScrollPane jScrollPane = new JScrollPane(textArea);
 		
 		Box verticalBox = Box.createVerticalBox();
 		
@@ -81,7 +94,7 @@ public class ClientGUI extends JFrame {
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
 			gl_contentPane.createParallelGroup(Alignment.TRAILING)
-				.addComponent(textArea, GroupLayout.DEFAULT_SIZE, 474, Short.MAX_VALUE)
+				.addComponent(jScrollPane, GroupLayout.DEFAULT_SIZE, 474, Short.MAX_VALUE)
 				.addGroup(gl_contentPane.createSequentialGroup()
 					.addContainerGap(178, Short.MAX_VALUE)
 					.addComponent(lblAktuellesKonto, GroupLayout.PREFERRED_SIZE, 193, GroupLayout.PREFERRED_SIZE)
@@ -98,37 +111,64 @@ public class ClientGUI extends JFrame {
 						.addComponent(txtKa, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(lblAktuellesKonto, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(textArea, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))
+					.addComponent(jScrollPane, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))
 		);
 		
 		JPanel panel_1 = new JPanel();
 		tabbedPane.addTab("Bankverbindung", null, panel_1, null);
 		panel_1.setLayout(null);
 		
-		JButton btnNewButton = new JButton("Verbinde mit Bank und Konto");
+		btnNewButton = new JButton("Verbinde mit Bank und Konto");
 		btnNewButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				int port = getPortNumberFromPortTextField();
-				if ((port > 0) && (port < 65536)) {
-					if (_controller.connectToBank(textField.getText(), port, Client.standardBankName)) {
-						textArea.append("Connection established...\n");
-						textArea.append("Rufe Kontendaten ab...\n");
-						
-						String bankCode = textField_11.getText();
-						int accountId = Integer.valueOf(textField_11.getText());
-						try {
-							float kontostand = _controller.getBankAccess().getAccountBalance(accountId, bankCode);
-							txtKa.setText(String.valueOf(kontostand) + " EUR");
-						} catch (RemoteException | ExecuteException e) {
-							txtKa.setText("k.A.");
-							textArea.append("Beim Abrufen der Kontendaten trat ein Fehler auf...\n");
+				// listener ist zustandsbehaftet!!!
+				if (!_connected) {
+					int port = getPortNumberFromPortTextField();
+					String ip = textField.getText();
+					String rmiName = Client.standardBankName;
+					
+					textArea.append("Try to establish connection with the following params...\n");
+					textArea.append("Bank-IP-Adress: " + ip + ":" + port + "\n");
+					textArea.append("Name of the rmi object: " + rmiName + "\n");
+					
+					if ((port > 0) && (port < 65536)) {
+						ResultGUI<Void> r = _controller.connectToBank(ip, port, rmiName);
+						if (r.isSuccessful()) {
+							textArea.append("Connection established...\n");
+							textArea.append("Rufe Kontendaten ab...\n");
+							
+							String bankCode = txtVs.getText();
+							int accountId = Integer.valueOf(txtVs.getText());
+							
+							ResultGUI<Float> ab = _controller.getBankAccess().getAccountBalance(accountId, bankCode);
+							if (r.isSuccessful()) {
+								textArea.append("Kontodaten wurden erfolgreich abgerufen...\n");
+								txtKa.setText(String.valueOf(ab.getResult()) + " EUR");
+								btnAusfhren.setEnabled(true);
+								btnNewButton.setText("Beende Verbindung");
+								_connected = true;
+							} else {
+								txtKa.setText("k.A.");
+								textArea.append("Beim Abrufen der Kontendaten trat ein Fehler auf...\n");
+							}
+						} else {
+							textArea.append("Failed!!!\n");
+							textArea.append("Reason: " + r.getErrorMessage() + "\n");
 						}
 					} else {
-						textArea.append("Try to establish connection failed...\n");
+						textArea.append("Failed!!!\n");
+						textArea.append("Reason: Something went wrong with the port number...\n");
 					}
 				} else {
-					textArea.append("Something went wrong with the port number...\n");
+					textArea.append("Beende Verbindung...\n");
+					
+					txtKa.setText("k.A.");
+					btnAusfhren.setEnabled(false);
+					btnNewButton.setText("Verbinde mit Bank und Konto");
+					_connected = false;
+					
+					textArea.append("Erfolgreich beendet...\n");
 				}
 			}
 		});
@@ -162,10 +202,11 @@ public class ClientGUI extends JFrame {
 		lblKundennr.setBounds(170, 11, 166, 20);
 		panel_1.add(lblKundennr);
 		
-		textField_2 = new JTextField();
-		textField_2.setBounds(346, 11, 100, 20);
-		panel_1.add(textField_2);
-		textField_2.setColumns(10);
+		txtHeinJohannes = new JTextField();
+		txtHeinJohannes.setText("Hein, Johannes");
+		txtHeinJohannes.setBounds(346, 11, 100, 20);
+		panel_1.add(txtHeinJohannes);
+		txtHeinJohannes.setColumns(10);
 		
 		JLabel lblNewLabel = new JLabel("Kontonummer");
 		lblNewLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -173,6 +214,7 @@ public class ClientGUI extends JFrame {
 		panel_1.add(lblNewLabel);
 		
 		textField_3 = new JTextField();
+		textField_3.setText("43");
 		textField_3.setBounds(346, 42, 100, 20);
 		panel_1.add(textField_3);
 		textField_3.setColumns(10);
@@ -182,12 +224,14 @@ public class ClientGUI extends JFrame {
 		lblNewLabel_2.setBounds(170, 73, 166, 20);
 		panel_1.add(lblNewLabel_2);
 		
-		textField_11 = new JTextField();
-		textField_11.setBounds(346, 73, 100, 20);
-		panel_1.add(textField_11);
-		textField_11.setColumns(10);
+		txtVs = new JTextField();
+		txtVs.setText("vs12");
+		txtVs.setBounds(346, 73, 100, 20);
+		panel_1.add(txtVs);
+		txtVs.setColumns(10);
 		
-		JButton btnAusfhren = new JButton("Ausführen...");
+		btnAusfhren = new JButton("Ausführen...");
+		btnAusfhren.setEnabled(false);
 		btnAusfhren.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -198,7 +242,7 @@ public class ClientGUI extends JFrame {
 		tabbedPane.addTab("Buchungsformular", null, panel, null);
 		tabbedPane.setEnabledAt(1, true);
 		panel.setBorder(new LineBorder(new Color(0, 0, 0)));
-		contentPane.setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{textArea, verticalBox, panel, btnAusfhren, panel_1, btnNewButton, lblIp, textField, lblPort, txtstandard, tabbedPane}));
+		contentPane.setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{jScrollPane, verticalBox, panel, btnAusfhren, panel_1, btnNewButton, lblIp, textField, lblPort, txtstandard, tabbedPane}));
 		panel.setLayout(null);
 		panel.add(btnAusfhren);
 		

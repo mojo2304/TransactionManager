@@ -6,9 +6,10 @@ import java.rmi.registry.Registry;
 
 import tm.client.Client;
 import tm.client.view.ClientGUI;
+import tm.model.ResultGUI;
 import tm.server.Bank;
 
-public class ClientImpl extends Thread  {
+public class ClientImpl extends Thread implements Client {
 	
 	boolean _work;
 	private Bank bank = null;
@@ -17,7 +18,7 @@ public class ClientImpl extends Thread  {
 		_work = true;
 	}
 	
-	public boolean connectToBank(String bankIPAdress, int bankPort, String bankName) {
+	public ResultGUI<Void> connectToBank(String bankIPAdress, int bankPort, String bankName) {
 //		// the security manager is necessary for RMI
 //		if (System.getSecurityManager() == null) {
 //			System.setSecurityManager(new SecurityManager());
@@ -27,10 +28,10 @@ public class ClientImpl extends Thread  {
 			Registry registry = LocateRegistry.getRegistry(bankIPAdress, bankPort);
 			bank = (Bank) registry.lookup(bankName);
 		} catch (Exception e) {
-			return false;
+			return new ResultGUI<Void>(null, false, e.getMessage());
 		}
 		
-		return true;
+		return new ResultGUI<Void>(null, true, null);
 	}
 	
 	public void run() {

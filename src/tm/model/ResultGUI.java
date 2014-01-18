@@ -1,4 +1,4 @@
-package tm.server.model;
+package tm.model;
 
 public class ResultGUI<T> {
 

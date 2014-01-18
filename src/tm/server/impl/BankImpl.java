@@ -1,6 +1,7 @@
 package tm.server.impl;
 import java.rmi.RemoteException;
 
+import tm.model.ResultGUI;
 import tm.server.Bank;
 import tm.server.model.Result;
 import tm.server.model.Transaction;
@@ -18,8 +19,8 @@ public class BankImpl implements Bank {
 		_tm = new TransactionManager();
 	}
 	
-	public int[] createNewCustomer(String firstName, String lastName, String bankCode) throws ExecuteException {
-		int[] r = new int[2];
+	public ResultGUI<Integer[]> createNewCustomer(String firstName, String lastName, String bankCode) {
+		Integer[] r = new Integer[2];
 		
 		Transaction t = _tm.createNewTransaction();
 		t.begin();
@@ -35,17 +36,19 @@ public class BankImpl implements Bank {
 			
 			t.commit();
 			
-			return r;
+			return new ResultGUI<Integer[]>(r, true, null);
 		} catch (ExecuteException e) {
 			t.abort();
-			throw new ExecuteException("Custumer konnte nicht angelegt werden. Warum auch immer." + e.getMessage());
+			String err = "Custumer konnte nicht angelegt werden. Ausführungsproblem: " + e.getMessage() + "\n";
+			return new ResultGUI<Integer[]>(null, false, err);
 		} catch (RemoteException e) {
 			t.abort();
-			throw new ExecuteException("Custumer konnte nicht angelegt werden. Warum auch immer. " + e.getMessage());
+			String err = "Custumer konnte nicht angelegt werden. Verbindungssproblem: " + e.getMessage() + "\n";
+			return new ResultGUI<Integer[]>(null, false, err);
 		}
 	}
 	
-	public int createNewAccount(int customerId, String bankCode) throws ExecuteException {
+	public ResultGUI<Integer> createNewAccount(int customerId, String bankCode) {
 		Transaction t = _tm.createNewTransaction();
 		t.begin();
 		
@@ -55,17 +58,19 @@ public class BankImpl implements Bank {
 			
 			t.commit();
 			
-			return result[0].getInt();
+			return new ResultGUI<Integer>(result[0].getInt(), true, null);
 		} catch (ExecuteException e) {
 			t.abort();
-			throw new ExecuteException("Account konnte nicht angelegt werden. Warum auch immer.");
+			String err = "Custumer konnte nicht angelegt werden. Ausführungsproblem: " + e.getMessage() + "\n";
+			return new ResultGUI<Integer>(null, false, err);
 		} catch (RemoteException e) {
 			t.abort();
-			throw new ExecuteException("Account konnte nicht angelegt werden. Warum auch immer.");
+			String err = "Custumer konnte nicht angelegt werden. Verbindungssproblem: " + e.getMessage() + "\n";
+			return new ResultGUI<Integer>(null, false, err);
 		}
 	}
 	
-	public boolean deleteCustomer(int customerId, String bankCode) {
+	public ResultGUI<Void> deleteCustomer(int customerId, String bankCode) {
 		Transaction t = _tm.createNewTransaction();
 		t.begin();
 		
@@ -87,18 +92,18 @@ public class BankImpl implements Bank {
 
 			t.commit();
 			
-			return true;
+			return new ResultGUI<Void>(null, true, null);
 		} catch (ExecuteException e) {
 			t.abort();
-			return false;
+			return new ResultGUI<Void>(null, false, e.getMessage());
 		} catch (RemoteException e) {
 			t.abort();
-			return false;
+			return new ResultGUI<Void>(null, false, e.getMessage());
 		}
 	}
 	
 	// Einzahlen
-	public boolean deposit(int accountId, float amount, String bankCode) {
+	public ResultGUI<Void> deposit(int accountId, float amount, String bankCode) {
 		Transaction t = _tm.createNewTransaction();
 		t.begin();
 		
@@ -114,18 +119,18 @@ public class BankImpl implements Bank {
 			
 			t.commit();
 			
-			return true;
+			return new ResultGUI<Void>(null, true, null);
 		} catch (ExecuteException e) {
 			t.abort();
-			return false;
+			return new ResultGUI<Void>(null, false, e.getMessage());
 		} catch (RemoteException e) {
 			t.abort();
-			return false;
+			return new ResultGUI<Void>(null, false, e.getMessage());
 		}
 	}
 	
 	// Auszahlen
-	public boolean cashout(int accountId, float amount, String bankCode) {
+	public ResultGUI<Void> cashout(int accountId, float amount, String bankCode) {
 		Transaction t = _tm.createNewTransaction();
 		t.begin();
 		
@@ -146,18 +151,18 @@ public class BankImpl implements Bank {
 			
 			t.commit();
 			
-			return true;
+			return new ResultGUI<Void>(null, true, null);
 		} catch (ExecuteException e) {
 			t.abort();
-			return false;
+			return new ResultGUI<Void>(null, false, e.getMessage());
 		} catch (RemoteException e) {
 			t.abort();
-			return false;
+			return new ResultGUI<Void>(null, false, e.getMessage());
 		}
 	}
 	
 	// Überweisung
-	public boolean remittance(int destAccountId, String destBankCode, int srcAccountId, String srcBankCode, float amount) {
+	public ResultGUI<Void> remittance(int destAccountId, String destBankCode, int srcAccountId, String srcBankCode, float amount) {
 		Transaction t = _tm.createNewTransaction();
 		t.begin();
 		
@@ -190,18 +195,18 @@ public class BankImpl implements Bank {
 			
 			t.commit();
 			
-			return true;
+			return new ResultGUI<Void>(null, true, null);
 		} catch (ExecuteException e) {
 			t.abort();
-			return false;
+			return new ResultGUI<Void>(null, false, e.getMessage());
 		} catch (RemoteException e) {
 			t.abort();
-			return false;
+			return new ResultGUI<Void>(null, false, e.getMessage());
 		}
 	}
 	
 	// Umbuchung
-	public boolean transfer(int destAccountId, int srcAccountId, String bankCode, float amount) {
+	public ResultGUI<Void> transfer(int destAccountId, int srcAccountId, String bankCode, float amount) {
 		Transaction t = _tm.createNewTransaction();
 		t.begin();
 		
@@ -229,17 +234,17 @@ public class BankImpl implements Bank {
 			
 			t.commit();
 			
-			return true;
+			return new ResultGUI<Void>(null, true, null);
 		} catch (ExecuteException e) {
 			t.abort();
-			return false;
+			return new ResultGUI<Void>(null, false, e.getMessage());
 		} catch (RemoteException e) {
 			t.abort();
-			return false;
+			return new ResultGUI<Void>(null, false, e.getMessage());
 		}
 	}
 	
-	public float getAccountBalance(int accountId, String bankCode) throws RemoteException, ExecuteException {
+	public ResultGUI<Float> getAccountBalance(int accountId, String bankCode) {
 		Transaction t = _tm.createNewTransaction();
 		t.begin();
 		
@@ -249,13 +254,13 @@ public class BankImpl implements Bank {
 			
 			t.commit();
 			
-			return srcResult[0].getFloat();
+			return new ResultGUI<Float>(srcResult[0].getFloat(), true, null);
 		} catch (ExecuteException e) {
 			t.abort();
-			throw new ExecuteException(e.getMessage());
+			return new ResultGUI<Float>(null, false, e.getMessage());
 		} catch (RemoteException e) {
 			t.abort();
-			throw new RemoteException(e.getMessage());
+			return new ResultGUI<Float>(null, false, e.getMessage());
 		}
 	}
 }

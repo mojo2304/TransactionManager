@@ -1,27 +1,26 @@
 package tm.server;
 
 import java.rmi.Remote;
-import java.rmi.RemoteException;
 
-import tm.server.util.ExecuteException;
+import tm.model.ResultGUI;
 
 public interface Bank extends Remote {
 	
 	public final String FIRSTBANKNAME = "Bank1";
 	
-	public int[] createNewCustomer(String firstName, String lastName, String bankCode) throws RemoteException, ExecuteException;
+	public ResultGUI<Integer[]> createNewCustomer(String firstName, String lastName, String bankCode);
 	
-	public int createNewAccount(int customerId, String bankCode) throws RemoteException, ExecuteException;
+	public ResultGUI<Integer> createNewAccount(int customerId, String bankCode);
 	
-	public boolean deleteCustomer(int customerId, String bankCode) throws RemoteException, ExecuteException;
+	public ResultGUI<Void> deleteCustomer(int customerId, String bankCode);
 	
-	public boolean deposit(int accountId, float amount, String bankCode) throws RemoteException, ExecuteException;
+	public ResultGUI<Void> deposit(int accountId, float amount, String bankCode);
 	
-	public boolean cashout(int accountId, float amount, String bankCode) throws RemoteException, ExecuteException;
+	public ResultGUI<Void> cashout(int accountId, float amount, String bankCode);
 	
-	public boolean remittance(int destAccountId, String destBankCode, int srcAccountId, String srcBankCode, float amount) throws RemoteException, ExecuteException;
+	public ResultGUI<Void> remittance(int destAccountId, String destBankCode, int srcAccountId, String srcBankCode, float amount);
 	
-	public boolean transfer(int destAccountId, int srcAccountId, String bankCode, float amount) throws RemoteException, ExecuteException;
+	public ResultGUI<Void> transfer(int destAccountId, int srcAccountId, String bankCode, float amount);
 	
-	public float getAccountBalance(int accountId, String bankCode) throws RemoteException, ExecuteException;
+	public ResultGUI<Float> getAccountBalance(int accountId, String bankCode);
 }

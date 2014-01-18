@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import tm.client.impl.ClientImpl;
+import tm.model.ResultGUI;
 import tm.objectmanager.OM;
 import tm.objectmanager.ObjectManager;
 import tm.server.Server;
@@ -67,8 +68,13 @@ public class BankImplTest {
 		}
 
 		try {
-			int[] custumer = _c.getBankAccess().createNewCustomer("L", "B", "vs12");
-			_c.getBankAccess().createNewAccount(custumer[0], "vs12");
+			ResultGUI<Integer[]> custumer = _c.getBankAccess().createNewCustomer("L", "B", "vs12");
+			
+			if (custumer.isSuccessful()) {
+				_c.getBankAccess().createNewAccount(custumer.getResult()[0], "vs12");
+			} else {
+				throw new Exception(custumer.getErrorMessage());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Test createNewCustomer failed. " + e.getMessage());
